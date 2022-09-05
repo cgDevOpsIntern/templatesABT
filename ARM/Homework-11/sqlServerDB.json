@@ -1,116 +1,114 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+    "contentVersion": "1.0.0.1",
     "parameters": {
-      "sqlAdministratorLogin": {
-        "type": "string",
-        "metadata": {
-          "description": "The administrator username of the SQL Server."
+        "sqlAdministratorLogin": {
+            "type": "String",
+            "metadata": {
+                "description": "The administrator username of the SQL Server."
+            }
+        },
+        "sqlAdministratorLoginPassword": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "The administrator password of the SQL Server."
+            }
+        },
+        "transparentDataEncryption": {
+            "defaultValue": "Enabled",
+            "allowedValues": [
+                "Enabled",
+                "Disabled"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Enable or disable Transparent Data Encryption (TDE) for the database."
+            }
+        },
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "Location for all resources."
+            }
         }
-      },
-      "sqlAdministratorLoginPassword": {
-        "type": "securestring",
-        "metadata": {
-          "description": "The administrator password of the SQL Server."
-        }
-      },
-      "transparentDataEncryption": {
-        "type": "string",
-        "allowedValues": [
-          "Enabled",
-          "Disabled"
-        ],
-        "defaultValue": "Enabled",
-        "metadata": {
-          "description": "Enable or disable Transparent Data Encryption (TDE) for the database."
-        }
-      },
-      "location": {
-        "type": "string",
-        "defaultValue": "[resourceGroup().location]",
-        "metadata": {
-          "description": "Location for all resources."
-        }
-      }
     },
     "variables": {
-      "sqlServerName": "[concat('sqlserver', uniqueString(subscription().id, resourceGroup().id))]",
-      "databaseName": "sample-db-with-tde",
-      "databaseEdition": "Basic",
-      "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-      "databaseServiceObjectiveName": "Basic"
+        "sqlServerName": "[concat('sqlserver', uniqueString(subscription().id, resourceGroup().id))]",
+        "databaseName": "[parameters('databaseName')]",
+        "databaseEdition": "Basic",
+        "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
+        "databaseServiceObjectiveName": "Basic"
     },
     "resources": [
-      {
-        "name": "[variables('sqlServerName')]",
-        "type": "Microsoft.Sql/servers",
-        "apiVersion": "2020-02-02-preview",
-        "location": "[parameters('location')]",
-        "tags": {
-          "displayName": "SqlServer"
-        },
-        "properties": {
-          "administratorLogin": "[parameters('sqlAdministratorLogin')]",
-          "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
-          "version": "12.0"
-        },
-        "resources": [
-          {
-            "name": "[variables('databaseName')]",
-            "type": "databases",
+        {
+            "type": "Microsoft.Sql/servers",
             "apiVersion": "2020-02-02-preview",
+            "name": "[variables('sqlServerName')]",
             "location": "[parameters('location')]",
             "tags": {
-              "displayName": "Database"
+                "displayName": "SqlServer"
             },
             "properties": {
-              "edition": "[variables('databaseEdition')]",
-              "collation": "[variables('databaseCollation')]",
-              "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+                "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+                "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
+                "version": "12.0"
             },
-            "dependsOn": [
-              "[variables('sqlServerName')]"
-            ],
             "resources": [
-              {
-                "comments": "Transparent Data Encryption",
-                "name": "current",
-                "type": "transparentDataEncryption",
-                "apiVersion": "2017-03-01-preview",
-                "properties": {
-                  "status": "[parameters('transparentDataEncryption')]"
+                {
+                    "type": "databases",
+                    "apiVersion": "2020-02-02-preview",
+                    "name": "[variables('databaseName')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[variables('sqlServerName')]"
+                    ],
+                    "tags": {
+                        "displayName": "Database"
+                    },
+                    "properties": {
+                        "edition": "[variables('databaseEdition')]",
+                        "collation": "[variables('databaseCollation')]",
+                        "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+                    },
+                    "resources": [
+                        {
+                            "type": "transparentDataEncryption",
+                            "apiVersion": "2017-03-01-preview",
+                            "name": "current",
+                            "dependsOn": [
+                                "[variables('databaseName')]"
+                            ],
+                            "properties": {
+                                "status": "[parameters('transparentDataEncryption')]"
+                            }
+                        }
+                    ]
                 },
-                "dependsOn": [
-                  "[variables('databaseName')]"
-                ]
-              }
+                {
+                    "type": "firewallrules",
+                    "apiVersion": "2020-02-02-preview",
+                    "name": "AllowAllMicrosoftAzureIps",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[variables('sqlServerName')]"
+                    ],
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                    }
+                }
             ]
-          },
-          {
-            "name": "AllowAllMicrosoftAzureIps",
-            "type": "firewallrules",
-            "apiVersion": "2020-02-02-preview",
-            "location": "[parameters('location')]",
-            "properties": {
-              "endIpAddress": "0.0.0.0",
-              "startIpAddress": "0.0.0.0"
-            },
-            "dependsOn": [
-              "[variables('sqlServerName')]"
-            ]
-          }
-        ]
-      }
+        }
     ],
     "outputs": {
-      "sqlServerFqdn": {
-        "type": "string",
-        "value": "[reference(resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName]"
-      },
-      "databaseName": {
-        "type": "string",
-        "value": "[variables('databaseName')]"
-      }
+        "sqlServerFqdn": {
+            "type": "String",
+            "value": "[reference(resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName]"
+        },
+        "databaseName": {
+            "type": "String",
+            "value": "[variables('databaseName')]"
+        }
     }
-  }
-  
+}

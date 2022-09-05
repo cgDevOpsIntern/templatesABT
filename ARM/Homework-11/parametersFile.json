@@ -1,18 +1,21 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
+    "contentVersion": "1.0.0.1",
     "parameters": {
       "sqlAdministratorLogin": {
-        "value": "sql-h11-db-admin"
+        "value": "sqlh11dbadm"
       },
       "sqlAdministratorLoginPassword": {
-        "value": "sql-h11-db-Password#$%"
+        "value": "340Usqlh11Mcxo7Khy"
       },
       "transparentDataEncryption": {
         "value": "Enabled"
       },
       "location": {
         "value": "[resourceGroup().location]"
+      },
+      "databaseName": {
+        "value": "sample-db-h11-sql"
       }
     }
-  }
+}
