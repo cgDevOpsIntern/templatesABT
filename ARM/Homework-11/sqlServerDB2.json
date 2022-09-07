@@ -18,6 +18,9 @@
             "minLength": 1,
             "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
         },
+          "h11-sqlserverName": {
+            "type": "string"
+        },
         "h11-sqldbEdition": {
             "type": "string",
             "defaultValue": "Basic",
@@ -42,6 +45,9 @@
             "metadata": {
                 "description": "Describes the performance level for Edition"
             }
+        },
+        "dbBackupPolicy": {
+            "type": "object"
         }
     },
     "resources": [
@@ -49,7 +55,7 @@
             "name": "[variables('h11-sqlserverName')]",
             "type": "Microsoft.Sql/servers",
             "location": "[resourceGroup().location]",
-            "apiVersion": "2014-04-01-preview",
+            "apiVersion": "2021-11-01-preview",
             "dependsOn": [],
             "tags": {
                 "displayName": "h11-sqlserver"
@@ -63,7 +69,7 @@
                     "name": "AllowAllWindowsAzureIps",
                     "type": "firewallrules",
                     "location": "[resourceGroup().location]",
-                    "apiVersion": "2014-04-01-preview",
+                    "apiVersion": "2021-11-01-preview",
                     "dependsOn": [
                         "[concat('Microsoft.Sql/servers/', variables('h11-sqlserverName'))]"
                     ],
@@ -78,7 +84,7 @@
             "name": "[variables('fullyQualifiedh11-sqldbName')]",
             "type": "Microsoft.Sql/servers/databases",
             "location": "[resourceGroup().location]",
-            "apiVersion": "2014-04-01-preview",
+            "apiVersion": "2021-11-01-preview",
             "dependsOn": [
                 "[resourceId('Microsoft.Sql/servers', variables('h11-sqlserverName'))]"
             ],
@@ -88,9 +94,18 @@
             "properties": {
                 "collation": "[parameters('h11-sqldbCollation')]",
                 "edition": "[parameters('h11-sqldbEdition')]",
-                "maxSizeBytes": "1073741824",
+                "maxSizeBytes": 1073741824,
                 "requestedServiceObjectiveName": "[parameters('h11-sqldbRequestedServiceObjectiveName')]"
             }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+            "apiVersion": "2021-11-01-preview",
+            "name": "[concat(variables('fullyQualifiedh11-sqldbName'), '/Default')]",
+             "properties": "[parameters('dbBackupPolicy')]",
+             "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('h11-sqlserverName'), parameters('h11-sqldbName'))]"
+             ]
         }
     ],
     "variables": {

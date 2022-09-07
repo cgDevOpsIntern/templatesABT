@@ -19,6 +19,15 @@
       },
       "h11-sqldbRequestedServiceObjectiveName": {
         "value": "Basic"
-      }
+      },
+      "h11-sqlserverName": {
+        "value": "h11-sqlserver"
+    },
+      "dbBackupPolicy": {
+        "value": {
+            "diffBackupIntervalInHours": 24,
+            "retentionDays": 30
+        }
     }
   }
+}
