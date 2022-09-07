@@ -18,7 +18,7 @@
             "minLength": 1,
             "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
         },
-          "h11-sqlserverName": {
+        "h11-sqlserverName": {
             "type": "string"
         },
         "h11-sqldbEdition": {
@@ -98,14 +98,14 @@
                 "requestedServiceObjectiveName": "[parameters('h11-sqldbRequestedServiceObjectiveName')]"
             }
         },
-        {
+        { //backup
             "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
             "apiVersion": "2021-11-01-preview",
             "name": "[concat(variables('fullyQualifiedh11-sqldbName'), '/Default')]",
-             "properties": "[parameters('dbBackupPolicy')]",
-             "dependsOn": [
+            "properties": "[parameters('dbBackupPolicy')]",
+            "dependsOn": [
                 "[resourceId('Microsoft.Sql/servers/databases', parameters('h11-sqlserverName'), parameters('h11-sqldbName'))]"
-             ]
+            ]
         }
     ],
     "variables": {
