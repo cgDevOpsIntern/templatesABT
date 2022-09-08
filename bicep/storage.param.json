@@ -5,8 +5,12 @@
         "storageAccountName": {
             "value": "h11storageBicep"
         },
-        "location": {
+        "locationStorage": {
             "value": "westeurope"
+        },
+        "SKUtiear": {
+            "value": "Standard_LRS"
         }
+        
     }
 }
