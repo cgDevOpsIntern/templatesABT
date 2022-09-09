@@ -3,14 +3,20 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "storageAccountName": {
-            "value": "h11storageBicep"
+            "value": "biceph11storage"
         },
-        "locationStorage": {
-            "value": "westeurope"
+        "location": {
+            "value": "West Europe"
         },
-        "SKUtiear": {
+        "storageSKU": {
             "value": "Standard_LRS"
+        },
+        "storageKind": {
+            "value": "StorageV2"
+        },
+        "storageTier": {
+            "value": "Hot"
         }
-        
     }
 }
+
