@@ -11,12 +11,12 @@ param linuxFxVersion string
 param dockerRegistryUrl string
 
 resource name_resource 'Microsoft.Web/sites@2022-03-01' = {
-  name: farmName
+  name: appName
   location: location
   tags: {
   }
   properties: {
-    name: name
+    name: appName
     siteConfig: {
       appSettings: [
         {
