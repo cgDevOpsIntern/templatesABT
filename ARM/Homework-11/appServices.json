@@ -1,0 +1,82 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.10.61.36676",
+      "templateHash": "3363169087468386733"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "farmName": {
+      "type": "string",
+      "defaultValue": "h11farm"
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "F1"
+    },
+    "skuTier": {
+      "type": "string",
+      "defaultValue": "Free"
+    },
+    "nodeNo": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "webAppName": {
+      "type": "string",
+      "defaultValue": "h11webApp"
+    },
+    "dockerImage": {
+      "type": "string",
+      "defaultValue": "pavcg/alpine-linux"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('farmName')]",
+      "location": "[parameters('location')]",
+      "kind": "linux",
+      "sku": {
+        "name": "[parameters('sku')]",
+        "tier": "[parameters('skuTier')]"
+      },
+      "tags": {
+        "displayName": "[parameters('farmName')]"
+      },
+      "properties": {
+        "targetWorkerCount": "[parameters('nodeNo')]",
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-01-15",
+      "name": "[parameters('webAppName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('farmName'))]",
+        "siteConfig": {
+          "dockerImage": "[format('DOCKER|{0}', parameters('dockerImage'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('farmName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "concatOutput": {
+      "type": "string",
+      "value": "[format('{0}{1}', parameters('farmName'), uniqueString(resourceGroup().id))]"
+    }
+  }
+}
