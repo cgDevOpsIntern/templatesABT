@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.10.61.36676",
+      "templateHash": "1288902772336752418"
+    }
+  },
+  "parameters": {
+    "appServiceName": {
+      "type": "string",
+      "defaultValue": "h11appService"
+    },
+    "backupName": {
+      "type": "string",
+      "defaultValue": "h11backup"
+    },
+    "webApp": {
+      "type": "string",
+      "defaultValue": "h11webApp"
+    },
+    "storageAccountURL": {
+      "type": "string",
+      "defaultValue": "<backup-url>"
+    },
+    "frequencyInterval": {
+      "type": "int",
+      "defaultValue": 5
+    },
+    "frequencyUnit": {
+      "type": "string",
+      "defaultValue": "Day",
+      "allowedValues": [
+        "Day",
+        "Hour"
+      ]
+    },
+    "retentionPeriodInDays": {
+      "type": "int",
+      "defaultValue": 30
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/backup', parameters('appServiceName'))]",
+      "kind": "backup",
+      "properties": {
+        "backupName": "[parameters('backupName')]",
+        "backupSchedule": {
+          "frequencyInterval": "[parameters('frequencyInterval')]",
+          "frequencyUnit": "[parameters('frequencyUnit')]",
+          "keepAtLeastOneBackup": "true",
+          "retentionPeriodInDays": "[parameters('retentionPeriodInDays')]"
+        },
+        "enabled": "true",
+        "storageAccountUrl": "[parameters('storageAccountURL')]"
+      }
+    }
+  ]
+}
