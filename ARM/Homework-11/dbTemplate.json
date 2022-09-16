@@ -1,0 +1,93 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.10.61.36676",
+      "templateHash": "13859249832417291485"
+    }
+  },
+  "parameters": {
+    "serverName": {
+      "type": "string",
+      "defaultValue": "h11dbserver"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "resourceGroup().location"
+    },
+    "adminLogin": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "secureString"
+    },
+    "databaseName": {
+      "type": "string",
+      "defaultValue": "h11dbname"
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "GP_S_Gen5_1"
+    },
+    "tier": {
+      "type": "string",
+      "defaultValue": "GeneralPurpose"
+    },
+    "firewallRules": {
+      "type": "array",
+      "metadata": {
+        "description": "array of firewall rules"
+      }
+    },
+    "requestedBackupStorageRedundancy": {
+      "type": "string",
+      "defaultValue": "Local"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-02-01-preview",
+      "name": "[parameters('serverName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "administratorLogin": "[parameters('adminLogin')]",
+        "administratorLoginPassword": "[parameters('adminPassword')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-08-01-preview",
+      "name": "[format('{0}/{1}', parameters('serverName'), parameters('databaseName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "requestedBackupStorageRedundancy": "[parameters('requestedBackupStorageRedundancy')]"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "tier": "[parameters('tier')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "serverName_firewallRules_name",
+        "count": "[length(parameters('firewallRules'))]"
+      },
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "apiVersion": "2021-02-01-preview",
+      "name": "[format('{0}/{1}', parameters('serverName'), parameters('firewallRules')[copyIndex()].name)]",
+      "properties": {
+        "endIpAddress": "[parameters('firewallRules')[copyIndex()].start]",
+        "startIpAddress": "[parameters('firewallRules')[copyIndex()].end]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
+      ]
+    }
+  ]
+}
