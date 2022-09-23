@@ -12,6 +12,7 @@ terraform {
 provider "azurerm" {
   features {}
 
+  resource_group_name = var.rgName
   subscription_id = var.subID
   client_id = var.clientID
   client_secret = var.clientSec

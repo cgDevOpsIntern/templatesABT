@@ -12,10 +12,16 @@ terraform {
 provider "azurerm" {
   features {}
 
+  # resource_group_name = var.rgName
   subscription_id = var.subID
-  client_id = var.clientID
-  client_secret = var.clientSec
-  tenant_id = var.tenantID
+  client_id       = var.clientID
+  client_secret   = var.clientSec
+  tenant_id       = var.tenantID
+}
+
+resource "azurerm_resource_group" "rgName" {
+  name     = var.rgName
+  location = var.location
 }
 
 resource "azurerm_mssql_server" "sqldb" {
