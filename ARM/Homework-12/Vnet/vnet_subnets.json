@@ -1,0 +1,77 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "resourceGroup": {
+            "type": "string"
+        },
+        "addressSpaces": {
+            "type": "array"
+        },
+        "ipv6Enabled": {
+            "type": "bool"
+        },
+        "subnetCount": {
+            "type": "int"
+        },
+        "subnet0_name": {
+            "type": "string"
+        },
+        "subnet0_addressRange": {
+            "type": "string"
+        },
+        "subnet1_name": {
+            "type": "string"
+        },
+        "subnet1_addressRange": {
+            "type": "string"
+        },
+        "ddosProtectionPlanEnabled": {
+            "type": "bool"
+        },
+        "firewallEnabled": {
+            "type": "bool"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('virtualNetworkName')]",
+            "type": "Microsoft.Network/VirtualNetworks",
+            "apiVersion": "2021-01-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {
+                "capgem": "internship"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "h12subnet1",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24"
+                        }
+                    },
+                    {
+                        "name": "h12subnet2",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/24"
+                        }
+                    }
+                ],
+                "enableDdosProtection": "[parameters('ddosProtectionPlanEnabled')]"
+            }
+        }
+    ]
+}

@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "westeurope"
+        },
+        "applicationGatewayName": {
+            "value": "h12_appgetaway1"
+        },
+        "tier": {
+            "value": "Standard_v2"
+        },
+        "skuSize": {
+            "value": "Standard_v2"
+        },
+        "capacity": {
+            "value": 0
+        },
+        "subnetName": {
+            "value": "h12subnet1"
+        },
+        "zones": {
+            "value": []
+        },
+        "virtualNetworkName": {
+            "value": "h12vnet"
+        },
+        "virtualNetworkPrefix": {
+            "value": [
+                "10.0.0.0/16"
+            ]
+        },
+        "publicIpAddressName": {
+            "value": "10.0.3.0"
+        },
+        "sku": {
+            "value": "Standard"
+        },
+        "allocationMethod": {
+            "value": "Static"
+        },
+        "publicIpZones": {
+            "value": []
+        },
+        "autoScaleMaxCapacity": {
+            "value": 10
+        }
+    }
+}

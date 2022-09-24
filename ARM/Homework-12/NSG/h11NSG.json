@@ -1,0 +1,25 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "networkSecurityGroups_h12NSG_name": {
+            "defaultValue": "h12NSG",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkSecurityGroups_h12NSG_name')]",
+            "location": "eastus",
+            "tags": {
+                "capgem": "internship"
+            },
+            "properties": {
+                "securityRules": []
+            }
+        }
+    ]
+}

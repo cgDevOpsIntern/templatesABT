@@ -1,0 +1,205 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "applicationGatewayName": {
+            "type": "string"
+        },
+        "tier": {
+            "type": "string"
+        },
+        "skuSize": {
+            "type": "string"
+        },
+        "capacity": {
+            "type": "int",
+            "defaultValue": 2
+        },
+        "subnetName": {
+            "type": "string"
+        },
+        "zones": {
+            "type": "array"
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "virtualNetworkPrefix": {
+            "type": "array"
+        },
+        "publicIpAddressName": {
+            "type": "string"
+        },
+        "sku": {
+            "type": "string"
+        },
+        "allocationMethod": {
+            "type": "string"
+        },
+        "publicIpZones": {
+            "type": "array"
+        },
+        "autoScaleMaxCapacity": {
+            "type": "int"
+        }
+    },
+    "variables": {
+        "vnetId": "[resourceId('Test-RG','Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+        "publicIPRef": "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicIpAddressName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "applicationGatewayId": "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName'))]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('applicationGatewayName')]",
+            "type": "Microsoft.Network/applicationGateways",
+            "apiVersion": "2021-08-01",
+            "location": "[parameters('location')]",
+            "zones": "[parameters('zones')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIpAddressName'))]"
+            ],
+            "tags": {
+                "capgem": "internship"
+            },
+            "properties": {
+                "sku": {
+                    "name": "[parameters('skuSize')]",
+                    "tier": "[parameters('tier')]"
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "appGatewayIpConfig",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "frontendIPConfigurations": [
+                    {
+                        "name": "appGwPublicFrontendIp",
+                        "properties": {
+                            "PublicIPAddress": {
+                                "id": "[variables('publicIPRef')]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "port_80",
+                        "properties": {
+                            "Port": 80
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "h11backenpool1",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    }
+                ],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "sample_set",
+                        "properties": {
+                            "Port": 80,
+                            "Protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "requestTimeout": 20
+                        }
+                    }
+                ],
+                "backendSettingsCollection": [],
+                "httpListeners": [
+                    {
+                        "name": "h12_listner",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('applicationGatewayId'), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(variables('applicationGatewayId'), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "sslCertificate": null
+                        }
+                    }
+                ],
+                "listeners": [],
+                "requestRoutingRules": [
+                    {
+                        "Name": "h12_sample_rule",
+                        "properties": {
+                            "RuleType": "Basic",
+                            "httpListener": {
+                                "id": "[concat(variables('applicationGatewayId'), '/httpListeners/h12_listner')]"
+                            },
+                            "priority": 1,
+                            "backendAddressPool": {
+                                "id": "[concat(variables('applicationGatewayId'), '/backendAddressPools/h11backenpool1')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(variables('applicationGatewayId'), '/backendHttpSettingsCollection/sample_set')]"
+                            }
+                        }
+                    }
+                ],
+                "routingRules": [],
+                "enableHttp2": false,
+                "sslCertificates": [],
+                "probes": [],
+                "autoscaleConfiguration": {
+                    "minCapacity": "[parameters('capacity')]",
+                    "maxCapacity": "[parameters('autoScaleMaxCapacity')]"
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworkName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('virtualNetworkPrefix')]"
+                },
+                "subnets": [
+                    {
+                        "name": "h12subnet1",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24"
+                        }
+                    },
+                    {
+                        "name": "h12subnet2",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2020-08-01",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('publicIpAddressName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('sku')]"
+            },
+            "zones": "[parameters('publicIpZones')]",
+            "properties": {
+                "publicIPAllocationMethod": "[parameters('allocationMethod')]"
+            }
+        }
+    ]
+}

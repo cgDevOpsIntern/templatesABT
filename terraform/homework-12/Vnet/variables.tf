@@ -1,3 +1,7 @@
+variable "rgName" {
+  type    = string
+  #default = "Cap.Pawel-Aleksandruk"
+}
 variable "location" {
   type = string
 }
@@ -9,9 +13,6 @@ variable "addressSpace" {
 }
 variable "arrayOfSubnets" {
   type = list(any)
-}
-variable "rgName" {
-  type    = string
 }
 # Resources Autenthication 
 variable "subID" {

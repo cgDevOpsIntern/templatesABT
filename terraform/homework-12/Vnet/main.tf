@@ -18,6 +18,11 @@ provider "azurerm" {
   tenant_id       = var.tenantID
 }
 
+resource "azurerm_resource_group" "rgName" {
+  name     = var.rgName
+  location = var.location
+}
+
 resource "azurerm_virtual_network" "vnetName" {
   name                = var.vnetName
   location            = var.location
